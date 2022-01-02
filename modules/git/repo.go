@@ -15,6 +15,9 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"net/url"
+
+	"code.gitea.io/gitea/modules/log"
 )
 
 // GPGSettings represents the default GPG settings for this repository
@@ -116,6 +119,30 @@ func CloneWithArgs(ctx context.Context, from, to string, args []string, opts Clo
 	toDir := path.Dir(to)
 	if err = os.MkdirAll(toDir, os.ModePerm); err != nil {
 		return err
+	}
+
+	if CheckGitVersionAtLeast("2.9") == nil {
+		u, err := url.Parse(from)
+		if err!= nil {
+			return err
+		}
+		var password string
+		var username string
+		var ok bool
+		if u.User != nil {
+			password, ok = u.User.Password()
+			username = u.User.Username()
+			log.Trace(username)
+			if ok {
+				u.User = url.User(username)
+				log.Trace(password)
+				args = append(args,
+					"-c",
+					fmt.Sprintf("credential.helper=/bin/echo -e \"username=%s\\npassword=%s\\n\"", username, password),
+				)
+			}
+		}
+		from = u.String()
 	}
 
 	cmd := NewCommandContextNoGlobals(ctx, args...).AddArguments("clone")
