@@ -74,6 +74,7 @@ arguments - which can alternatively be run by running the subcommand web.`
 		cmd.CmdDocs,
 		cmd.CmdDumpRepository,
 		cmd.CmdRestoreRepository,
+		cmd.CmdCredentialHelper,
 	}
 	// Now adjust these commands to add our global configuration options
 
