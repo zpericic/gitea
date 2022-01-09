@@ -106,7 +106,7 @@ func handleMigrateError(ctx *context.Context, owner *user_model.User, err error,
 		ctx.Data["Err_RepoName"] = true
 		ctx.RenderWithErr(ctx.Tr("repo.form.name_pattern_not_allowed", err.(db.ErrNamePatternNotAllowed).Pattern), tpl, form)
 	default:
-		remoteAddr, _ := forms.ParseRemoteAddr(form.CloneAddr, form.AuthUsername, form.AuthPassword)
+		remoteAddr, _ := forms.ParseRemoteAddr(form.CloneAddr)
 		err = util.NewStringURLSanitizedError(err, remoteAddr, true)
 		if strings.Contains(err.Error(), "Authentication failed") ||
 			strings.Contains(err.Error(), "Bad credentials") ||
@@ -176,7 +176,7 @@ func MigratePost(ctx *context.Context) {
 		return
 	}
 
-	remoteAddr, err := forms.ParseRemoteAddr(form.CloneAddr, form.AuthUsername, form.AuthPassword)
+	remoteAddr, err := forms.ParseRemoteAddr(form.CloneAddr)
 	if err == nil {
 		err = migrations.IsMigrateURLAllowed(remoteAddr, ctx.User)
 	}
