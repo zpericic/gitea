@@ -47,6 +47,18 @@ func WikiRemoteURL(remote string) string {
 	return ""
 }
 
+// CreateCredentialsHelper creates git credentials helper git command option
+func CreateCredentialsHelper(username, password string) []string {
+	credentialsArgs := []string{}
+	if len(username) > 0 {
+		credentialsArgs = append(credentialsArgs,
+			"-c",
+			fmt.Sprintf("credential.helper=%s -c %s credential-helper --username %s --password %s", setting.AppPath, setting.CustomConf, username, password),
+		)
+	}
+	return credentialsArgs
+}
+
 // MigrateRepositoryGitData starts migrating git related data after created migrating repository
 func MigrateRepositoryGitData(ctx context.Context, u *user_model.User,
 	repo *repo_model.Repository, opts migration.MigrateOptions,
