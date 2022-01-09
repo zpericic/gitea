@@ -176,6 +176,8 @@ func MigrateRepositoryGitData(ctx context.Context, u *user_model.User,
 			Interval:       setting.Mirror.DefaultInterval,
 			EnablePrune:    true,
 			NextUpdateUnix: timeutil.TimeStampNow().AddDuration(setting.Mirror.DefaultInterval),
+			MirrorUsername: opts.AuthUsername,
+			MirrorPassword: opts.AuthPassword,
 			LFS:            opts.LFS,
 		}
 		if opts.LFS {
