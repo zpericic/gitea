@@ -212,7 +212,14 @@ type PushOptions struct {
 
 // Push pushs local commits to given remote branch.
 func Push(ctx context.Context, repoPath string, opts PushOptions) error {
-	cmd := NewCommandContext(ctx, "push")
+	cargs := make([]string, len(GlobalCommandArgs))
+	copy(cargs, GlobalCommandArgs)
+	return PushWithArgs(ctx, repoPath, cargs, opts)
+}
+
+// PushWithArgs pushs local commits to given remote branch.
+func PushWithArgs(ctx context.Context, repoPath string, args []string, opts PushOptions) error {
+	cmd := NewCommandContextNoGlobals(ctx, args...).AddArguments("push")
 	if opts.Force {
 		cmd.AddArguments("-f")
 	}
