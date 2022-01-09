@@ -211,6 +211,26 @@ func runSync(ctx context.Context, m *repo_model.Mirror) ([]*mirrorSyncResult, bo
 		log.Error("SyncMirrors [repo: %-v]: GetRemoteAddress Error %v", m.Repo, remoteErr)
 	}
 
+	if remoteAddr.User != nil {
+		// Migrate username from git remmote address to DB
+		m.MirrorUsername = remoteAddr.User.Username()
+		password, found := remoteAddr.User.Password()
+		if found {
+			// Migrate password from git remmote address to DB
+			m.MirrorPassword = password
+		}
+		remoteAddr.User = nil
+
+		if err := repo_model.UpdateMirror(m); err != nil {
+			log.Error("Failed to migrate mirror credentials", err)
+			return nil, false
+		}
+		if err := UpdateAddress(m, remoteAddr.String()); err != nil {
+			log.Error("Failed to update mirror address adter credentials migration", err)
+			return nil, false
+		}
+	}
+
 	stdoutBuilder := strings.Builder{}
 	stderrBuilder := strings.Builder{}
 	if err := git.NewCommand(ctx, gitArgs...).
