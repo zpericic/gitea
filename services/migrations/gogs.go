@@ -255,20 +255,17 @@ func (g *GogsDownloader) GetTopics() ([]string, error) {
 }
 
 // FormatCloneURL add authentication into remote URLs
-func (g *GogsDownloader) FormatCloneURL(opts MigrateOptions, remoteAddr string) (string, error) {
-	if len(opts.AuthToken) > 0 || len(opts.AuthUsername) > 0 {
-		u, err := url.Parse(remoteAddr)
-		if err != nil {
-			return "", err
-		}
-		if len(opts.AuthToken) != 0 {
-			u.User = url.UserPassword(opts.AuthToken, "")
-		} else {
-			u.User = url.UserPassword(opts.AuthUsername, opts.AuthPassword)
-		}
-		return u.String(), nil
+func (g *GogsDownloader) FormatCloneURL(opts MigrateOptions, remoteAddr string) (string, string, string, error) {
+	u, err := url.Parse(remoteAddr)
+	if err != nil {
+		return "", "", "", err
 	}
-	return remoteAddr, nil
+	u.User = nil
+	if len(opts.AuthToken) != 0 {
+		return u.String(), opts.AuthToken, "", nil
+	} else {
+		return u.String(), opts.AuthUsername, opts.AuthPassword, nil
+	}
 }
 
 func convertGogsIssue(issue *gogs.Issue) *base.Issue {

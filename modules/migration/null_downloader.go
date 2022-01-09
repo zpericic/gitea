@@ -68,19 +68,34 @@ func (n NullDownloader) GetReviews(reviewable Reviewable) ([]*Review, error) {
 }
 
 // FormatCloneURL add authentication into remote URLs
-func (n NullDownloader) FormatCloneURL(opts MigrateOptions, remoteAddr string) (string, error) {
-	if len(opts.AuthToken) > 0 || len(opts.AuthUsername) > 0 {
-		u, err := url.Parse(remoteAddr)
-		if err != nil {
-			return "", err
-		}
-		u.User = url.UserPassword(opts.AuthUsername, opts.AuthPassword)
-		if len(opts.AuthToken) > 0 {
-			u.User = url.UserPassword("oauth2", opts.AuthToken)
-		}
-		return u.String(), nil
+func (n NullDownloader) FormatCloneURL(opts MigrateOptions, remoteAddr string) (string, string, string, error) {
+	u, err := url.Parse(remoteAddr)
+	if err != nil {
+		return "", "", "", err
 	}
-	return remoteAddr, nil
+	if len(opts.AuthToken) > 0 {
+		u.User = nil
+		return u.String(), "oauth2", opts.AuthToken, nil
+	}
+	var username string
+	var password string
+	if len(opts.AuthUsername) > 0 {
+		username = opts.AuthUsername
+		password = opts.AuthPassword
+		if len(u.User.Username()) > 0 {
+			u.User = url.User(u.User.Username())
+		} else {
+			u.User = nil
+		}
+	} else {
+		username = u.User.Username()
+		urlPassword, found := u.User.Password()
+		if found {
+			password = urlPassword
+		}
+		u.User = url.User(u.User.Username())
+	}
+	return u.String(), username, password, nil
 }
 
 // SupportGetRepoComments return true if it supports get repo comments
