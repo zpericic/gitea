@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/url"
 	"regexp"
 	"time"
 
@@ -137,7 +138,15 @@ func runPushSync(ctx context.Context, m *repo_model.PushMirror) error {
 			}
 			defer gitRepo.Close()
 
-			endpoint := lfs.DetermineEndpoint(remoteAddr.String(), "")
+			lfsURL := remoteAddr
+			if len(m.RemoteUsername) > 0 {
+				if len(m.RemotePassword) > 0 {
+					lfsURL.User = url.UserPassword(m.RemoteUsername, m.RemotePassword)
+				} else {
+					lfsURL.User = url.User(m.RemoteUsername)
+				}
+			}
+			endpoint := lfs.DetermineEndpoint(lfsURL.String(), "")
 			lfsClient := lfs.NewClient(endpoint, nil)
 			if err := pushAllLFSObjects(ctx, gitRepo, lfsClient); err != nil {
 				return util.NewURLSanitizedError(err, remoteAddr, true)
