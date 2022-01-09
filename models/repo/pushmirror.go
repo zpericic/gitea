@@ -25,6 +25,9 @@ type PushMirror struct {
 	Repo       *Repository `xorm:"-"`
 	RemoteName string
 
+	RemoteUsername string `xorm:"VARCHAR(2048)"`
+	RemotePassword string `xorm:"VARCHAR(2048)"`
+
 	Interval       time.Duration
 	CreatedUnix    timeutil.TimeStamp `xorm:"created"`
 	LastUpdateUnix timeutil.TimeStamp `xorm:"INDEX last_update"`
