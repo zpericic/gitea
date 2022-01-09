@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"path"
 	"strings"
 	"time"
@@ -172,7 +173,18 @@ func MigrateRepositoryGitData(ctx context.Context, u *user_model.User,
 		}
 
 		if opts.LFS {
-			endpoint := lfs.DetermineEndpoint(opts.CloneAddr, opts.LFSEndpoint)
+			lfsAddr := opts.CloneAddr
+			if lfsURL, err := url.Parse(lfsAddr); err == nil {
+				if len(opts.AuthUsername) > 0 {
+					if len(opts.AuthPassword) > 0 {
+						lfsURL.User = url.UserPassword(opts.AuthUsername, opts.AuthPassword)
+					} else {
+						lfsURL.User = url.User(opts.AuthUsername)
+					}
+				}
+				lfsAddr = lfsURL.String()
+			}
+			endpoint := lfs.DetermineEndpoint(lfsAddr, opts.LFSEndpoint)
 			lfsClient := lfs.NewClient(endpoint, httpTransport)
 			if err = StoreMissingLfsObjectsInRepository(ctx, repo, gitRepo, lfsClient); err != nil {
 				log.Error("Failed to store missing LFS objects for repository: %v", err)
