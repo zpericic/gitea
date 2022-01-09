@@ -90,9 +90,8 @@ func (f *MigrateRepoForm) Validate(req *http.Request, errs binding.Errors) bindi
 	return middleware.Validate(errs, ctx.Data, f, ctx.Locale)
 }
 
-// ParseRemoteAddr checks if given remote address is valid,
-// and returns composed URL with needed username and password.
-func ParseRemoteAddr(remoteAddr, authUsername, authPassword string) (string, error) {
+// ParseRemoteAddr checks if given remote address is valid.
+func ParseRemoteAddr(remoteAddr string) (string, error) {
 	remoteAddr = strings.TrimSpace(remoteAddr)
 	// Remote address can be HTTP/HTTPS/Git URL or local path.
 	if strings.HasPrefix(remoteAddr, "http://") ||
@@ -102,8 +101,8 @@ func ParseRemoteAddr(remoteAddr, authUsername, authPassword string) (string, err
 		if err != nil {
 			return "", &models.ErrInvalidCloneAddr{IsURLError: true}
 		}
-		if len(authUsername)+len(authPassword) > 0 {
-			u.User = url.UserPassword(authUsername, authPassword)
+		if u.User != nil {
+			u.User = nil
 		}
 		remoteAddr = u.String()
 	}

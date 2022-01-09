@@ -211,7 +211,7 @@ func SettingsPost(ctx *context.Context) {
 			form.MirrorPassword, _ = u.User.Password()
 		}
 
-		address, err := forms.ParseRemoteAddr(form.MirrorAddress, form.MirrorUsername, form.MirrorPassword)
+		address, err := forms.ParseRemoteAddr(form.MirrorAddress)
 		if err == nil {
 			err = migrations.IsMigrateURLAllowed(address, ctx.Doer)
 		}
@@ -327,7 +327,7 @@ func SettingsPost(ctx *context.Context) {
 			return
 		}
 
-		address, err := forms.ParseRemoteAddr(form.PushMirrorAddress, form.PushMirrorUsername, form.PushMirrorPassword)
+		address, err := forms.ParseRemoteAddr(form.PushMirrorAddress)
 		if err == nil {
 			err = migrations.IsMigrateURLAllowed(address, ctx.Doer)
 		}
