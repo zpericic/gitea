@@ -7,6 +7,7 @@ package mirror
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"strings"
 	"time"
 
@@ -284,7 +285,15 @@ func runSync(ctx context.Context, m *repo_model.Mirror) ([]*mirrorSyncResult, bo
 
 	if m.LFS && setting.LFS.StartServer {
 		log.Trace("SyncMirrors [repo: %-v]: syncing LFS objects...", m.Repo)
-		endpoint := lfs.DetermineEndpoint(remoteAddr.String(), m.LFSEndpoint)
+		lfsURL := remoteAddr
+		if len(m.MirrorUsername) > 0 {
+			if len(m.MirrorPassword) > 0 {
+				lfsURL.User = url.UserPassword(m.MirrorUsername, m.MirrorPassword)
+			} else {
+				lfsURL.User = url.User(m.MirrorUsername)
+			}
+		}
+		endpoint := lfs.DetermineEndpoint(lfsURL.String(), m.LFSEndpoint)
 		lfsClient := lfs.NewClient(endpoint, nil)
 		if err = repo_module.StoreMissingLfsObjectsInRepository(ctx, m.Repo, gitRepo, lfsClient); err != nil {
 			log.Error("SyncMirrors [repo: %-v]: failed to synchronize LFS objects for repository: %v", m.Repo, err)
