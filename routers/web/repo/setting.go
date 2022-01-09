@@ -348,6 +348,9 @@ func SettingsPost(ctx *context.Context) {
 			Repo:       repo,
 			RemoteName: fmt.Sprintf("remote_mirror_%s", remoteSuffix),
 			Interval:   interval,
+
+			RemoteUsername: form.PushMirrorUsername,
+			RemotePassword: form.PushMirrorPassword,
 		}
 		if err := repo_model.InsertPushMirror(m); err != nil {
 			ctx.ServerError("InsertPushMirror", err)
