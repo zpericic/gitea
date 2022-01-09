@@ -129,6 +129,8 @@ func (g *GiteaLocalUploader) CreateRepo(repo *base.Repository, opts base.Migrate
 		Wiki:           opts.Wiki,
 		Releases:       opts.Releases, // if didn't get releases, then sync them from tags
 		MirrorInterval: opts.MirrorInterval,
+		AuthUsername:   opts.AuthUsername,
+		AuthPassword:   opts.AuthPassword,
 	}, NewMigrationHTTPTransport())
 
 	g.sameApp = strings.HasPrefix(repo.OriginalURL, setting.AppURL)

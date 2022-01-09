@@ -90,7 +90,12 @@ func MigrateRepositoryGitData(ctx context.Context, u *user_model.User,
 		return repo, fmt.Errorf("Failed to remove %s: %v", repoPath, err)
 	}
 
-	if err = git.Clone(ctx, opts.CloneAddr, repoPath, git.CloneRepoOptions{
+	gitArgs := make([]string, len(git.GlobalCommandArgs))
+	copy(gitArgs, git.GlobalCommandArgs)
+	credentialsArgs := CreateCredentialsHelper(opts.AuthUsername, opts.AuthPassword)
+	gitArgs = append(gitArgs, credentialsArgs...)
+
+	if err = git.CloneWithArgs(ctx, opts.CloneAddr, repoPath, gitArgs, git.CloneRepoOptions{
 		Mirror:        true,
 		Quiet:         true,
 		Timeout:       migrateTimeout,
