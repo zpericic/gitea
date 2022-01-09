@@ -192,7 +192,7 @@ func migrateRepository(downloader base.Downloader, uploader base.Uploader, opts 
 	if opts.Description != "" {
 		repo.Description = opts.Description
 	}
-	if repo.CloneURL, err = downloader.FormatCloneURL(opts, repo.CloneURL); err != nil {
+	if repo.CloneURL, opts.AuthUsername, opts.AuthPassword, err = downloader.FormatCloneURL(opts, repo.CloneURL); err != nil {
 		return err
 	}
 

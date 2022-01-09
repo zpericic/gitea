@@ -31,7 +31,7 @@ type Downloader interface {
 	SupportGetRepoComments() bool
 	GetPullRequests(page, perPage int) ([]*PullRequest, bool, error)
 	GetReviews(pullRequestContext IssueContext) ([]*Review, error)
-	FormatCloneURL(opts MigrateOptions, remoteAddr string) (string, error)
+	FormatCloneURL(opts MigrateOptions, remoteAddr string) (string, string, string, error)
 }
 
 // DownloaderFactory defines an interface to match a downloader implementation and create a downloader

@@ -112,8 +112,8 @@ func NewCodebaseDownloader(ctx context.Context, projectURL *url.URL, project, re
 }
 
 // FormatCloneURL add authentication into remote URLs
-func (d *CodebaseDownloader) FormatCloneURL(opts base.MigrateOptions, remoteAddr string) (string, error) {
-	return opts.CloneAddr, nil
+func (d *CodebaseDownloader) FormatCloneURL(opts base.MigrateOptions, remoteAddr string) (string, string, string, error) {
+	return opts.CloneAddr, opts.AuthUsername, opts.AuthPassword, nil
 }
 
 func (d *CodebaseDownloader) callAPI(endpoint string, parameter map[string]string, result interface{}) error {
