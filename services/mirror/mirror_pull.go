@@ -46,7 +46,7 @@ func UpdateAddress(ctx context.Context, m *repo_model.Mirror, addr string) error
 
 	if m.Repo.HasWiki() {
 		wikiPath := m.Repo.WikiPath()
-		wikiRemotePath := repo_module.WikiRemoteURL(ctx, addr)
+		wikiRemotePath := repo_module.WikiRemoteURL(ctx, addr, m.MirrorUsername, m.MirrorPassword)
 		// Remove old remote of wiki
 		_, err := git.NewCommand(ctx, "remote", "rm", remoteName).RunInDir(wikiPath)
 		if err != nil && !strings.HasPrefix(err.Error(), "exit status 128 - fatal: No such remote ") {

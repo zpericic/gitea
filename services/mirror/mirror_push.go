@@ -46,7 +46,7 @@ func AddPushMirrorRemote(ctx context.Context, m *repo_model.PushMirror, addr str
 	}
 
 	if m.Repo.HasWiki() {
-		wikiRemoteURL := repository.WikiRemoteURL(ctx, addr)
+		wikiRemoteURL := repository.WikiRemoteURL(ctx, addr, m.RemoteUsername, m.RemotePassword)
 		if len(wikiRemoteURL) > 0 {
 			if err := addRemoteAndConfig(wikiRemoteURL, m.Repo.WikiPath()); err != nil {
 				return err

@@ -161,7 +161,7 @@ func (g *RepositoryDumper) CreateRepo(repo *base.Repository, opts base.MigrateOp
 
 	if opts.Wiki {
 		wikiPath := g.wikiPath()
-		wikiRemotePath := repository.WikiRemoteURL(g.ctx, remoteAddr)
+		wikiRemotePath := repository.WikiRemoteURL(g.ctx, remoteAddr, opts.AuthUsername, opts.AuthPassword)
 		if len(wikiRemotePath) > 0 {
 			if err := os.MkdirAll(wikiPath, os.ModePerm); err != nil {
 				return fmt.Errorf("Failed to remove %s: %v", wikiPath, err)

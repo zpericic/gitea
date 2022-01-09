@@ -62,6 +62,13 @@ func IsRepoURLAccessible(ctx context.Context, url string) bool {
 	return err == nil
 }
 
+// IsRepoURLAccessibleWithArgs checks if given repository URL is accessible.
+func IsRepoURLAccessibleWithArgs(ctx context.Context, url string, args []string) bool {
+	args = append(args, "ls-remote", "-q", "-h", url, "HEAD")
+	_, err := NewCommand(ctx, args...).Run()
+	return err == nil
+}
+
 // InitRepository initializes a new Git repository.
 func InitRepository(ctx context.Context, repoPath string, bare bool) error {
 	err := os.MkdirAll(repoPath, os.ModePerm)
