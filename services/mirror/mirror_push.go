@@ -146,7 +146,13 @@ func runPushSync(ctx context.Context, m *repo_model.PushMirror) error {
 
 		log.Trace("Pushing %s mirror[%d] remote %s", path, m.ID, m.RemoteName)
 
-		if err := git.Push(ctx, path, git.PushOptions{
+		cargs := make([]string, len(git.GlobalCommandArgs))
+		copy(cargs, git.GlobalCommandArgs)
+
+		credentialsArgs := repository.CreateCredentialsHelper(m.RemoteUsername, m.RemotePassword)
+		cargs = append(cargs, credentialsArgs...)
+
+		if err := git.PushWithArgs(ctx, path, cargs, git.PushOptions{
 			Remote:  m.RemoteName,
 			Force:   true,
 			Mirror:  true,
