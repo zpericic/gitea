@@ -192,7 +192,14 @@ func runSync(ctx context.Context, m *repo_model.Mirror) ([]*mirrorSyncResult, bo
 	timeout := time.Duration(setting.Git.Timeout.Mirror) * time.Second
 
 	log.Trace("SyncMirrors [repo: %-v]: running git remote update...", m.Repo)
-	gitArgs := []string{"remote", "update"}
+
+	credentialsArgs := repo_module.CreateCredentialsHelper(m.MirrorUsername, m.MirrorPassword)
+	gitArgs := make([]string, len(credentialsArgs))
+	copy(gitArgs, credentialsArgs)
+	gitArgs = append(gitArgs,
+		"remote",
+		"update",
+	)
 	if m.EnablePrune {
 		gitArgs = append(gitArgs, "--prune")
 	}
