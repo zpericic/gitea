@@ -287,7 +287,17 @@ func runSync(ctx context.Context, m *repo_model.Mirror) ([]*mirrorSyncResult, bo
 		log.Trace("SyncMirrors [repo: %-v Wiki]: running git remote update...", m.Repo)
 		stderrBuilder.Reset()
 		stdoutBuilder.Reset()
-		if err := git.NewCommandContext(ctx, "remote", "update", "--prune", m.GetRemoteName()).
+
+		gitArgs := make([]string, len(credentialsArgs))
+		copy(gitArgs, credentialsArgs)
+		gitArgs = append(gitArgs,
+			"remote",
+			"update",
+			"--prune",
+			m.GetRemoteName(),
+		)
+
+		if err := git.NewCommandContext(ctx, gitArgs...).
 			SetDescription(fmt.Sprintf("Mirror.runSync Wiki: %s ", m.Repo.FullName())).
 			RunInDirTimeoutPipeline(timeout, wikiPath, &stdoutBuilder, &stderrBuilder); err != nil {
 			stdout := stdoutBuilder.String()
@@ -319,7 +329,7 @@ func runSync(ctx context.Context, m *repo_model.Mirror) ([]*mirrorSyncResult, bo
 					stderrBuilder.Reset()
 					stdoutBuilder.Reset()
 
-					if err = git.NewCommandContext(ctx, "remote", "update", "--prune", m.GetRemoteName()).
+					if err = git.NewCommandContext(ctx, gitArgs...).
 						SetDescription(fmt.Sprintf("Mirror.runSync Wiki: %s ", m.Repo.FullName())).
 						RunInDirTimeoutPipeline(timeout, wikiPath, &stdoutBuilder, &stderrBuilder); err != nil {
 						stdout := stdoutBuilder.String()
