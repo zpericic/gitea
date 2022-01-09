@@ -27,6 +27,7 @@ import (
 	api "code.gitea.io/gitea/modules/structs"
 	"code.gitea.io/gitea/modules/util"
 	asymkey_service "code.gitea.io/gitea/services/asymkey"
+	mirror_service "code.gitea.io/gitea/services/mirror"
 
 	"github.com/editorconfig/editorconfig-core-go/v2"
 	"github.com/unknwon/com"
@@ -371,6 +372,28 @@ func repoAssignment(ctx *Context, repo *repo_model.Repository) {
 			ctx.ServerError("GetMirrorByRepoID", err)
 			return
 		}
+
+		u, _ := git.GetRemoteAddress(ctx, repo.RepoPath(), repo.GetRemoteName())
+
+		if u.User != nil {
+			// Migrate username from git remmote address to DB
+			ctx.Repo.Mirror.MirrorUsername = u.User.Username()
+			password, found := u.User.Password()
+			if found {
+				// Migrate password from git remmote address to DB
+				ctx.Repo.Mirror.MirrorPassword = password
+			}
+			u.User = nil
+			if err := mirror_service.UpdateAddress(ctx.Repo.Mirror, u.String()); err != nil {
+				ctx.ServerError("UpdateAddress", err)
+				return
+			}
+			if err := repo_model.UpdateMirror(ctx.Repo.Mirror); err != nil {
+				ctx.ServerError("UpdateMirror", err)
+				return
+			}
+		}
+
 		ctx.Data["MirrorEnablePrune"] = ctx.Repo.Mirror.EnablePrune
 		ctx.Data["MirrorInterval"] = ctx.Repo.Mirror.Interval
 		ctx.Data["Mirror"] = ctx.Repo.Mirror
