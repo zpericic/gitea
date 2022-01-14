@@ -206,11 +206,6 @@ func SettingsPost(ctx *context.Context) {
 			}
 		}
 
-		u, _ := git.GetRemoteAddress(ctx, ctx.Repo.Repository.RepoPath(), ctx.Repo.Mirror.GetRemoteName())
-		if u.User != nil && form.MirrorPassword == "" && form.MirrorUsername == u.User.Username() {
-			form.MirrorPassword, _ = u.User.Password()
-		}
-
 		address, err := forms.ParseRemoteAddr(form.MirrorAddress)
 		if err == nil {
 			err = migrations.IsMigrateURLAllowed(address, ctx.Doer)
@@ -219,6 +214,13 @@ func SettingsPost(ctx *context.Context) {
 			ctx.Data["Err_MirrorAddress"] = true
 			handleSettingRemoteAddrError(ctx, err, form)
 			return
+		}
+
+		if ctx.Repo.Mirror.MirrorUsername != form.MirrorUsername {
+			ctx.Repo.Mirror.MirrorUsername = form.MirrorUsername
+			ctx.Repo.Mirror.MirrorPassword = form.MirrorPassword
+		} else if len(form.MirrorPassword) > 0 {
+			ctx.Repo.Mirror.MirrorPassword = form.MirrorPassword
 		}
 
 		if err := mirror_service.UpdateAddress(ctx, ctx.Repo.Mirror, address); err != nil {
