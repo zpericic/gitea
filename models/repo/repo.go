@@ -167,7 +167,11 @@ func (repo *Repository) SanitizedOriginalURL() string {
 	if err != nil {
 		return ""
 	}
-	u.User = url.User(u.User.Username())
+	if u.User != nil {
+		u.User = url.User(u.User.Username())
+	} else {
+		u.User = nil
+	}
 	return u.String()
 }
 
